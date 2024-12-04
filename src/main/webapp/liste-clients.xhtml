@@ -1,11 +1,39 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
-<f:view>
-    <h:outputLabel value="Hello, world"/>
-</f:view>
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>Liste des Clients</title>
+</h:head>
+<h:body>
+    <p:panel header="Liste des Clients">
+        <h:form>
+            <p:dataTable var="client" value="#{clientBean.listClient()}" rows="10"
+                         paginator="true"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15">
+                <p:column headerText="ID">
+                    <h:outputText value="#{client.id}" />
+                </p:column>
+                <p:column headerText="Nom">
+                    <h:outputText value="#{client.nom}" />
+                </p:column>
+                <p:column headerText="Email">
+                    <h:outputText value="#{client.email}" />
+                </p:column>
+                <p:column headerText="Adresse">
+                    <h:outputText value="#{client.adresse}" />
+                </p:column>
+                <p:column headerText="Actions">
+                    <p:commandButton value="Éditer" action="edit-client.xhtml?faces-redirect=true">
+                        <f:param name="id" value="#{client.id}" />
+                    </p:commandButton>
+                    <p:commandButton value="Supprimer" action="#{clientBean.deleteClient(client.id)}" update="@form" />
+                </p:column>
+            </p:dataTable>
+            <p:commandButton value="Ajouter un client" action="add-client.xhtml?faces-redirect=true" style="margin-top:10px;" />
+        </h:form>
+    </p:panel>
+</h:body>
 </html>

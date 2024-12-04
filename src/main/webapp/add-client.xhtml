@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+   <title>Ajouter un Client</title>
+</h:head>
+<h:body>
+   <p:panel header="Ajouter un Client">
+      <h:form>
+         <p:panelGrid columns="2">
+            <p:outputLabel for="nom" value="Nom:" />
+            <p:inputText id="nom" value="#{clientBean.clientActuel.nom}" required="true" />
+
+            <p:outputLabel for="email" value="Email:" />
+            <p:inputText id="email" value="#{clientBean.clientActuel.email}" required="true" />
+
+            <p:outputLabel for="adresse" value="Adresse:" />
+            <p:inputTextarea id="adresse" value="#{clientBean.clientActuel.adresse}" required="true" />
+         </p:panelGrid>
+
+         <p:commandButton value="Sauvegarder" action="#{clientBean.saveClient(clientBean.clientActuel)}" update="@form" />
+         <p:commandButton value="Annuler" action="list-clients.xhtml?faces-redirect=true" immediate="true" />
+      </h:form>
+   </p:panel>
+</h:body>
+</html>

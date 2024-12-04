@@ -1,14 +1,26 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="https://jakarta.ee/xml/ns/persistence"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_2.xsd"
-             version="3.2">
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+             version="3.0">
     <persistence-unit name="default">
-        <jta-data-source>java:jboss/datasources/Lab2DS</jta-data-source>
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <jta-data-source>java:/MySqlDS</jta-data-source>
+
+        <class>com.example.lab2.entities.Client</class>
+        <class>com.example.lab2.entities.Produit</class>
+        <class>com.example.lab2.entities.Panier</class>
+        <class>com.example.lab2.entities.LignePanier</class>
+
         <properties>
-            <property name="jakarta.persistence.schema-generation.database.action" value="create"/>
-            <property name="hibernate.show_sql" value="true"/>
-            <property name="hibernate.format_sql" value="true"/>
+            <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/lab2"/>
+            <property name="jakarta.persistence.jdbc.user" value="root"/>
+            <property name="jakarta.persistence.jdbc.password" value=""/>
+
+            <property name="eclipselink.ddl-generation" value="create-tables"/>
+            <property name="eclipselink.logging.level" value="FINE"/>
+            <property name="eclipselink.logging.level.sql" value="FINE"/>
         </properties>
     </persistence-unit>
 </persistence>

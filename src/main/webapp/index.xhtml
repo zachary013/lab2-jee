@@ -4,18 +4,24 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:p="http://primefaces.org/ui">
 <h:head>
-    <title>Lab2 JEE E-commerce</title>
+    <title>E-Commerce Vitrine</title>
 </h:head>
 <h:body>
-    <p:panel header="Welcome to E-commerce Application">
+    <p:panel header="Notre Vitrine" style="margin-bottom:20px">
         <h:form>
-            <p:menu>
-                <p:submenu label="Navigation">
-                    <p:menuitem value="Clients" outcome="/views/client/list" />
-                    <p:menuitem value="Products" outcome="/views/produit/list" />
-                    <p:menuitem value="Shopping Carts" outcome="/views/panier/list" />
-                </p:submenu>
-            </p:menu>
+            <p:dataGrid var="produit" value="#{produitBean.listProduit()}" columns="3" layout="grid"
+                        rows="9" paginator="true" paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                        rowsPerPageTemplate="6,12,16">
+                <p:panel header="#{produit.nom}" style="text-align:center">
+                    <h:panelGrid columns="1" style="width:100%">
+                        <h:outputText value="#{produit.description}" />
+                        <h:outputText value="#{produit.prix}">
+                            <f:convertNumber type="currency" currencySymbol="€" />
+                        </h:outputText>
+                        <p:commandButton value="Ajouter au panier" action="#{panierBean.addToPanier(produit, 1)}" update="@form" />
+                    </h:panelGrid>
+                </p:panel>
+            </p:dataGrid>
         </h:form>
     </p:panel>
 </h:body>
