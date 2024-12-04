@@ -97,7 +97,7 @@ public class PanierBean implements Serializable {
 
     public double getTotal() {
         return getLignesPanier().stream()
-                .mapToDouble(ligne -> ligne.getProduit().getPrix() * ligne.getQuantite())
+                .mapToDouble(ligne -> ligne.getProduit().getPrix().doubleValue() * ligne.getQuantite())
                 .sum();
     }
 
@@ -107,5 +107,14 @@ public class PanierBean implements Serializable {
             em.remove(panierActuel);
             panierActuel = null;
         }
+    }
+
+    // Add getter and setter for panierActuel
+    public Panier getPanierActuel() {
+        return panierActuel;
+    }
+
+    public void setPanierActuel(Panier panierActuel) {
+        this.panierActuel = panierActuel;
     }
 }
