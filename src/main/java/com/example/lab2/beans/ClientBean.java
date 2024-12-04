@@ -1,53 +1,54 @@
 package com.example.lab2.beans;
 
-import com.example.lab2.entities.Client;
-import jakarta.ejb.EJB;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Named;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import com.example.lab2.entities.Client;
 
 @Named
 @SessionScoped
 public class ClientBean implements Serializable {
 
-    private Client client = new Client();
-    private List<Client> clients = new ArrayList<>();
+    @PersistenceContext
+    private EntityManager em;
 
-    public String saveClient() {
-        client.setDateInscription(new Date());
-        // Add logic to save client
-        clients.add(client);
-        client = new Client();
-        return "client-list?faces-redirect=true";
+    private Client clientActuel;
+
+    @Transactional
+    public void saveClient(Client client) {
+        if (client.getId() == null) {
+            em.persist(client);
+        } else {
+            em.merge(client);
+        }
+        this.clientActuel = client;
     }
 
-    public String editClient(Client client) {
-        this.client = client;
-        return "client-form?faces-redirect=true";
+    public List<Client> listClient() {
+        return em.createQuery("SELECT c FROM Client c", Client.class).getResultList();
     }
 
-    public String deleteClient(Client client) {
-        clients.remove(client);
-        return "client-list?faces-redirect=true";
+    @Transactional
+    public void updateClient(Client client) {
+        em.merge(client);
+        if (clientActuel != null && clientActuel.getId().equals(client.getId())) {
+            this.clientActuel = client;
+        }
     }
 
-    // Getters and Setters
-    public Client getClient() {
-        return client;
+    @Transactional
+    public void deleteClient(Long id) {
+        Client client = em.find(Client.class, id);
+        if (client != null) {
+            em.remove(client);
+            if (clientActuel != null && clientActuel.getId().equals(id)) {
+                this.clientActuel = null;
+            }
+        }
     }
 
-    public void setClient(Client client) {
-        this.client = client;
-    }
-
-    public List<Client> getClients() {
-        return clients;
-    }
-
-    public void setClients(List<Client> clients) {
-        this.clients = clients;
-    }
 }

@@ -1,50 +1,47 @@
 package com.example.lab2.beans;
 
-import com.example.lab2.entities.Produit;
-import jakarta.enterprise.context.SessionScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
-import java.io.Serializable;
-import java.util.ArrayList;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import java.util.List;
+import com.example.lab2.entities.Produit;
 
 @Named
-@SessionScoped
-public class ProduitBean implements Serializable {
+@ApplicationScoped
+public class ProduitBean {
 
-    private Produit produit = new Produit();
-    private List<Produit> produits = new ArrayList<>();
+    @PersistenceContext
+    private EntityManager em;
 
-    public String saveProduit() {
-        // Add logic to save produit
-        produits.add(produit);
-        produit = new Produit();
-        return "produit-list?faces-redirect=true";
+    @Transactional
+    public void saveProduit(Produit produit) {
+        if (produit.getId() == null) {
+            em.persist(produit);
+        } else {
+            em.merge(produit);
+        }
     }
 
-    public String editProduit(Produit produit) {
-        this.produit = produit;
-        return "produit-form?faces-redirect=true";
+    public List<Produit> listProduit() {
+        return em.createQuery("SELECT p FROM Produit p", Produit.class).getResultList();
     }
 
-    public String deleteProduit(Produit produit) {
-        produits.remove(produit);
-        return "produit-list?faces-redirect=true";
+    @Transactional
+    public void updateProduit(Produit produit) {
+        em.merge(produit);
     }
 
-    // Getters and Setters
-    public Produit getProduit() {
-        return produit;
+    @Transactional
+    public void deleteProduit(Long id) {
+        Produit produit = em.find(Produit.class, id);
+        if (produit != null) {
+            em.remove(produit);
+        }
     }
 
-    public void setProduit(Produit produit) {
-        this.produit = produit;
-    }
-
-    public List<Produit> getProduits() {
-        return produits;
-    }
-
-    public void setProduits(List<Produit> produits) {
-        this.produits = produits;
+    public Produit getProduit(Long id) {
+        return em.find(Produit.class, id);
     }
 }

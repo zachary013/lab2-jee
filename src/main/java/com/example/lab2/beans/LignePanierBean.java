@@ -1,73 +1,83 @@
 package com.example.lab2.beans;
 
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Named;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
+import java.util.List;
 import com.example.lab2.entities.LignePanier;
 import com.example.lab2.entities.Panier;
 import com.example.lab2.entities.Produit;
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.inject.Named;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 @Named
-@SessionScoped
-public class LignePanierBean implements Serializable {
+@RequestScoped
+public class LignePanierBean {
 
-    private LignePanier lignePanier = new LignePanier();
-    private List<LignePanier> lignesPanier = new ArrayList<>();
-    private Long selectedPanierId;
-    private Long selectedProduitId;
+    @PersistenceContext
+    private EntityManager em;
 
-    public String saveLignePanier() {
-        lignePanier.calculerPrixTotal();
-        // Add logic to save lignePanier
-        lignesPanier.add(lignePanier);
-        lignePanier = new LignePanier();
-        return "ligne-panier-list?faces-redirect=true";
+    @Transactional
+    public void saveLignePanier(LignePanier lignePanier) {
+        if (lignePanier.getId() == null) {
+            em.persist(lignePanier);
+        } else {
+            em.merge(lignePanier);
+        }
     }
 
-    public String editLignePanier(LignePanier lignePanier) {
-        this.lignePanier = lignePanier;
-        this.selectedPanierId = lignePanier.getPanier().getId();
-        this.selectedProduitId = lignePanier.getProduit().getId();
-        return "ligne-panier-form?faces-redirect=true";
+    public List<LignePanier> listLignePanier() {
+        return em.createQuery("SELECT lp FROM LignePanier lp", LignePanier.class).getResultList();
     }
 
-    public String deleteLignePanier(LignePanier lignePanier) {
-        lignesPanier.remove(lignePanier);
-        return "ligne-panier-list?faces-redirect=true";
+    @Transactional
+    public void updateLignePanier(LignePanier lignePanier) {
+        em.merge(lignePanier);
     }
 
-    // Getters and Setters
-    public LignePanier getLignePanier() {
-        return lignePanier;
+    @Transactional
+    public void deleteLignePanier(Long id) {
+        LignePanier lignePanier = em.find(LignePanier.class, id);
+        if (lignePanier != null) {
+            em.remove(lignePanier);
+        }
     }
 
-    public void setLignePanier(LignePanier lignePanier) {
-        this.lignePanier = lignePanier;
+    public LignePanier getLignePanier(Long id) {
+        return em.find(LignePanier.class, id);
     }
 
-    public List<LignePanier> getLignesPanier() {
-        return lignesPanier;
+    @Transactional
+    public void updateQuantite(Long lignePanierId, int newQuantite) {
+        LignePanier lignePanier = em.find(LignePanier.class, lignePanierId);
+        if (lignePanier != null) {
+            lignePanier.setQuantite(newQuantite);
+            em.merge(lignePanier);
+        }
     }
 
-    public void setLignesPanier(List<LignePanier> lignesPanier) {
-        this.lignesPanier = lignesPanier;
+    public List<LignePanier> getLignePanierByPanier(Panier panier) {
+        return em.createQuery("SELECT lp FROM LignePanier lp WHERE lp.panier = :panier", LignePanier.class)
+                .setParameter("panier", panier)
+                .getResultList();
     }
 
-    public Long getSelectedPanierId() {
-        return selectedPanierId;
+    public LignePanier findLignePanierByPanierAndProduit(Panier panier, Produit produit) {
+        List<LignePanier> results = em.createQuery(
+                        "SELECT lp FROM LignePanier lp WHERE lp.panier = :panier AND lp.produit = :produit", LignePanier.class)
+                .setParameter("panier", panier)
+                .setParameter("produit", produit)
+                .getResultList();
+        return results.isEmpty() ? null : results.get(0);
     }
 
-    public void setSelectedPanierId(Long selectedPanierId) {
-        this.selectedPanierId = selectedPanierId;
-    }
-
-    public Long getSelectedProduitId() {
-        return selectedProduitId;
-    }
-
-    public void setSelectedProduitId(Long selectedProduitId) {
-        this.selectedProduitId = selectedProduitId;
+    @Transactional
+    public void removeLignePanierFromPanier(Panier panier, Produit produit) {
+        LignePanier lignePanier = findLignePanierByPanierAndProduit(panier, produit);
+        if (lignePanier != null) {
+            panier.getLignesPanier().remove(lignePanier);
+            em.remove(lignePanier);
+            em.merge(panier);
+        }
     }
 }
